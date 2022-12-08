@@ -1,3 +1,4 @@
-exports.createUser = (req,res) => {
-    res.send('<h1>will create later')
+exports.create = (req, res) => {
+    console.log(req.body);
+    res.send('<h1>will create later</h1>')
 }

@@ -2,23 +2,19 @@ const EmailVerificationToken = require('../models/emailVerificationToken');
 const User = require('../models/user');
 const nodemailer = require('nodemailer');
 const { isValidObjectId } = require('mongoose');
+const { generateOTP, generateMailTransporter } = require('../utils/mail');
+const { sendError } = require('../utils/helper');
 
 exports.create = async (req, res) => {
   const { name, email, password } = req.body;
   const oldUser = await User.findOne({ email });
 
-  if (oldUser)
-    return res.status(401).json({ error: 'This email is already taken' });
+  if (oldUser) return sendError(res, 'This email is already taken');
 
   const newUser = new User({ name, email, password });
   await newUser.save();
 
-  // generate a otp
-  let otp = '';
-  for (let i = 0; i <= 5; i++) {
-    const randomVal = Math.round(Math.random() * 9);
-    otp += randomVal;
-  }
+  let otp = generateOTP();
 
   // store otp inside our db
   const newEmailVerificationToken = new EmailVerificationToken({
@@ -29,14 +25,7 @@ exports.create = async (req, res) => {
   await newEmailVerificationToken.save();
 
   // send otp to user
-  let transport = nodemailer.createTransport({
-    host: 'smtp.mailtrap.io',
-    port: 2525,
-    auth: {
-      user: 'ad33388dbccbec',
-      pass: 'c9d93d38d61d34',
-    },
-  });
+  let transport = generateMailTransporter();
 
   transport.sendMail({
     from: 'verification@reviewapp.com',
@@ -55,34 +44,25 @@ exports.create = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
   const { userId, otp } = req.body;
 
-  if (!isValidObjectId(userId))
-    return res.status(401).json({ error: 'Invalid User' });
+  if (!isValidObjectId(userId)) return sendError(res, 'Invalid User');
 
   const user = await User.findById(userId);
-  if (!user) return res.status(401).json({ error: 'user not found!' });
-
-  if (user.isVerfified) return res.json({ error: 'User is already verfied!' });
+  if (!user) return sendError(res, 'user not found!', 404);
+  if (user.isVerfified) return sendError(res, 'User is already verfied!');
 
   const token = await EmailVerificationToken.findOne({ owner: userId });
-  if (!token) return res.json({ error: 'token not found' });
+  if (!token) return sendError(res, 'token not found');
 
   // method created for comapre token
   const isMatched = await token.compareToken(otp);
-  if (!isMatched) return res.json({ error: 'Please submit valid otp' });
+  if (!isMatched) return sendError(res, 'Please submit valid otp');
 
   user.isVerfified = true;
   await user.save();
 
   await EmailVerificationToken.findByIdAndDelete(token._id);
 
-  let transport = nodemailer.createTransport({
-    host: 'smtp.mailtrap.io',
-    port: 2525,
-    auth: {
-      user: 'ad33388dbccbec',
-      pass: 'c9d93d38d61d34',
-    },
-  });
+  let transport = generateMailTransporter();
 
   transport.sendMail({
     from: 'verification@reviewapp.com',
@@ -101,23 +81,20 @@ exports.resendEmailVerificationToken = async (req, res) => {
   if (!user) return res.json({ error: 'user not found!' });
 
   if (user.isVerfified)
-    return res.json({ error: 'This email id is already verified' });
+    return sendError(res, 'This email id is already verified');
 
   const alreadyHasToken = await EmailVerificationToken.findOne({
     owner: userId,
   });
 
   if (alreadyHasToken)
-    return res.json({
-      error: 'Only after one hour you can request for another token',
-    });
+    return sendError(
+      res,
+      'Only after one hour you can request for another token'
+    );
 
   // generate a otp
-  let otp = '';
-  for (let i = 0; i <= 5; i++) {
-    const randomVal = Math.round(Math.random() * 9);
-    otp += randomVal;
-  }
+  let otp = generateOTP();
 
   // store otp inside our db
   const newEmailVerificationToken = new EmailVerificationToken({
@@ -128,14 +105,7 @@ exports.resendEmailVerificationToken = async (req, res) => {
   await newEmailVerificationToken.save();
 
   // send otp to user
-  let transport = nodemailer.createTransport({
-    host: 'smtp.mailtrap.io',
-    port: 2525,
-    auth: {
-      user: 'ad33388dbccbec',
-      pass: 'c9d93d38d61d34',
-    },
-  });
+  let transport = generateMailTransporter();
 
   transport.sendMail({
     from: 'verification@reviewapp.com',

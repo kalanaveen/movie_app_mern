@@ -7,7 +7,7 @@ exports.generateOTP = (otp_length = 6) => {
     const randomVal = Math.round(Math.random() * 9);
     otp += randomVal;
   }
-  return generateOTP;
+  return otp;
 };
 
 exports.generateMailTransporter = () =>

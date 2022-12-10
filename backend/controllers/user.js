@@ -48,7 +48,7 @@ exports.verifyEmail = async (req, res) => {
 
   const user = await User.findById(userId);
   if (!user) return sendError(res, 'user not found!', 404);
-  if (user.isVerfified) return sendError(res, 'User is already verfied!');
+  if (user.isVerified) return sendError(res, 'User is already verfied!');
 
   const token = await EmailVerificationToken.findOne({ owner: userId });
   if (!token) return sendError(res, 'token not found');
@@ -57,7 +57,7 @@ exports.verifyEmail = async (req, res) => {
   const isMatched = await token.compareToken(otp);
   if (!isMatched) return sendError(res, 'Please submit valid otp');
 
-  user.isVerfified = true;
+  user.isVerified = true;
   await user.save();
 
   await EmailVerificationToken.findByIdAndDelete(token._id);
@@ -78,7 +78,7 @@ exports.resendEmailVerificationToken = async (req, res) => {
   const { userId } = req.body;
 
   const user = await User.findById(userId);
-  if (!user) return res.json({ error: 'user not found!' });
+  if (!user) return sendError(res,'user not found!');
 
   if (user.isVerfified)
     return sendError(res, 'This email id is already verified');

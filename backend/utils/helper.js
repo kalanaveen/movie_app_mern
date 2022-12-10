@@ -6,8 +6,8 @@ exports.sendError = (res, error, statusCode = 401) => {
 
 exports.generateRandomByte = () => {
   return new Promise((resolve, reject) => {
-    crypto.randomBytes(127, (err, buf) => {
-      if (err) return reject(err);
+    crypto.randomBytes(30, (err, buf) => {
+      if (err) reject(err);
 
         const bufString = buf.toString('hex');
         

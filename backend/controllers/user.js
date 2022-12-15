@@ -4,6 +4,7 @@ const { isValidObjectId } = require('mongoose');
 const { generateOTP, generateMailTransporter } = require('../utils/mail');
 const { sendError, generateRandomByte } = require('../utils/helper');
 const PasswordResetToken = require('../models/passwordResetTokenSchema');
+const jwt = require('jsonwebtoken');
 
 exports.create = async (req, res) => {
   const { name, email, password } = req.body;
@@ -78,7 +79,7 @@ exports.resendEmailVerificationToken = async (req, res) => {
   const { userId } = req.body;
 
   const user = await User.findById(userId);
-  if (!user) return sendError(res,'user not found!');
+  if (!user) return sendError(res, 'user not found!');
 
   if (user.isVerfified)
     return sendError(res, 'This email id is already verified');
@@ -124,14 +125,21 @@ exports.forgotPassword = async (req, res) => {
 
   if (!email) return sendError(res, 'email is missing');
 
-  const user = await User.findOne({ email })
-  if (!user) return sendError(res, "user not found", 404);
+  const user = await User.findOne({ email });
+  if (!user) return sendError(res, 'user not found', 404);
 
-  const alreadyToken = await PasswordResetToken.findOne({ owner: user._id })
-  if (alreadyToken) return sendError(res, "Only after one hour you can request for another token")
-  
+  const alreadyToken = await PasswordResetToken.findOne({ owner: user._id });
+  if (alreadyToken)
+    return sendError(
+      res,
+      'Only after one hour you can request for another token'
+    );
+
   const token = await generateRandomByte();
-  const newPasswordResetToken = await PasswordResetToken({ owner: user._id, token });
+  const newPasswordResetToken = await PasswordResetToken({
+    owner: user._id,
+    token,
+  });
 
   await newPasswordResetToken.save();
 
@@ -148,5 +156,54 @@ exports.forgotPassword = async (req, res) => {
            <a href='${resetPasswordUrl}'>Change Password</a>
           `,
   });
-  res.json({ msg: "Link sent to your email" })
+  res.json({ msg: 'Link sent to your email' });
+};
+
+exports.sendResetPasswordTokenStatus = (req, res) => {
+  res.json({ valid: true });
+};
+
+exports.resetPassword = async (req, res) => {
+  const { newPassword, userId } = req.body;
+
+  const user = await User.findById(userId);
+  const matched = await user.comparePassword(newPassword);
+
+  if (matched)
+    return sendError(res, 'The new password must be different from old one!');
+
+  user.password = newPassword;
+  await user.save();
+
+  await PasswordResetToken.findByIdAndDelete(req.resetToken._id);
+
+  let transport = generateMailTransporter();
+
+  transport.sendMail({
+    from: 'security@reviewapp.com',
+    to: user.email,
+    subject: 'Password reset successfully',
+    html: `
+           <h1>Password reset successfully</h1>
+           <p>Now you can use new password</p>
+          `,
+  });
+  res.json({
+    message: 'Password reset successfully,Now you can use new password',
+  });
+};
+
+exports.signIn = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return sendError(res, 'Email/Password mismatch!');
+
+  const matched = await user.comparePassword(password);
+  if (!matched) return sendError(res, 'Email/Password mismatch!');
+
+  const { _id, name } = user;
+
+  const jwtToken = jwt.sign({ userId: _id }, 'secretOrPrivateKey');
+  res.json({ user: { id: _id, name, email, token: jwtToken } });
 };

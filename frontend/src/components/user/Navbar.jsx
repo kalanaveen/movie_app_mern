@@ -1,10 +1,11 @@
 import React from 'react';
 import { BsFillSunFill } from 'react-icons/bs';
+import Container from '../Container';
 
 function Navbar() {
   return (
-    <div className="bg-secondary">
-      <div className="max-w-screen-xl mx-auto">
+    <div className="bg-secondary shadow-sm shadow-gray-500">
+      <div className="p-2 max-w-screen-xl mx-auto">
         <div className="flex justify-between items-center">
           <img src="./logo.png" alt="5star" className="h-10" />
           <ul className="flex items-center space-x-4">

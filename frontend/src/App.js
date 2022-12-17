@@ -1,9 +1,12 @@
-import Navbar from "./components/user/Navbar";
+import SignIn from './components/auth/SignIn';
+import Navbar from './components/user/Navbar';
 
 function App() {
   return (
-    
-       <Navbar/>
+    <>
+      <Navbar />
+      <SignIn />
+    </>
   );
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BsFillSunFill } from 'react-icons/bs';
-import Container from '../Container';
+
 
 function Navbar() {
   return (

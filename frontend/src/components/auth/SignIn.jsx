@@ -3,11 +3,12 @@ import FormInput from '../form/FormInput';
 import Submit from '../form/Submit';
 import Title from '../form/Title';
 import CustomLink from '../CustomLink';
+import Container from '../Container';
 
 function SignIn() {
   return (
     <div className="fixed inset-0 bg-primary -z-10 flex justify-center items-center">
-      <div className="max-w-screen-xl mx-auto">
+      <Container>
         <form className="bg-secondary rounded p-6 w-72 space-y-6">
           <Title>Sign In</Title>
           <FormInput
@@ -22,7 +23,7 @@ function SignIn() {
             <CustomLink to="/auth/signup">Sign Up</CustomLink>
           </div>
         </form>
-      </div>
+      </Container>
     </div>
   );
 }

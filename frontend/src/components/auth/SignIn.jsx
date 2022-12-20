@@ -4,8 +4,13 @@ import Submit from '../form/Submit';
 import Title from '../form/Title';
 import CustomLink from '../CustomLink';
 import Container from '../Container';
+import { useContext } from 'react';
+import { ThemeContext } from '../../context/ThemeProvider';
 
 function SignIn() {
+  const theme = useContext(ThemeContext);
+  theme.method();
+  
   return (
     <div className="fixed inset-0 bg-primary -z-10 flex justify-center items-center">
       <Container>

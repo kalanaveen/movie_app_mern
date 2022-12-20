@@ -2,13 +2,13 @@ import React from 'react';
 import Title from '../form/Title';
 import Submit from '../form/Submit';
 import Container from '../Container';
-import { useState , useRef , useEffect} from 'react';
+import { useState , useRef , useEffect } from 'react';
 
 
 let currentOTPIndex;
 let OTP_LENGTH = 6;
 
-function EmailVerification() {
+function EmailVerification() {                                                                                                                                                                                                                                                                                                                                   
   const [otp, setOTP] = useState(new Array(OTP_LENGTH).fill(''));
   const [activeOtpIndex, setActiveOtpIndex] = useState(0);
 
@@ -34,6 +34,7 @@ function EmailVerification() {
     else focusNextInputField(currentOTPIndex);
 
     setOTP([...newOtp]);
+    
   };
   
   const handleKeyDown = ({ key }, index) => {

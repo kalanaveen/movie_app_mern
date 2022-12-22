@@ -4,17 +4,13 @@ import Submit from '../form/Submit';
 import Title from '../form/Title';
 import CustomLink from '../CustomLink';
 import Container from '../Container';
-import { useContext } from 'react';
-import { ThemeContext } from '../../context/ThemeProvider';
+
 
 function SignIn() {
-  const theme = useContext(ThemeContext);
-  theme.method();
-  
   return (
-    <div className="fixed inset-0 bg-primary -z-10 flex justify-center items-center">
+    <div className="fixed inset-0 dark: bg-primary -z-10 flex justify-center items-center">
       <Container>
-        <form className="bg-secondary rounded p-6 w-72 space-y-6">
+        <form className="dark:bg-secondary rounded p-6 w-72 space-y-6">
           <Title>Sign In</Title>
           <FormInput
             name="email"

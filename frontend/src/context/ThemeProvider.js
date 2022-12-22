@@ -3,14 +3,16 @@ import React, { createContext } from 'react';
 export const ThemeContext = createContext();
 
 function ThemeProvider({ children }) {
-  const method = () => {
-    console.log('from theme provider');
+  const toggleTheme = () => {
+    // document.documentElement.classList.add('')
+    console.log(document.documentElement);
   };
   return (
-    <ThemeContext.Provider value={{ theme: 'just for testing', method }}>
+    <ThemeContext.Provider value={{ toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 }
 
 export default ThemeProvider;
+

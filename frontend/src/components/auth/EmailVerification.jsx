@@ -2,11 +2,11 @@ import React from 'react';
 import Title from '../form/Title';
 import Submit from '../form/Submit';
 import Container from '../Container';
-import { useState , useRef , useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import FormContainer from '../FormContainer';
 import { commonModalClasses } from '../../utils/theme';
 import { useLocation, useNavigate } from 'react-router-dom';
-
+import { verifyUserEmail } from '../../api/auth';
 
 let currentOTPIndex;
 let OTP_LENGTH = 6;
@@ -15,24 +15,24 @@ const isValidOTP = (otp) => {
   let valid = false;
 
   for (let val of otp) {
-    valid = !isNaN(parseInt(val))
+    valid = !isNaN(parseInt(val));
     if (!valid) break;
   }
 
   return valid;
-}
+};
 
-function EmailVerification() {                                                                                                                                                                                                                                                                                                                                   
+function EmailVerification() {
   const [otp, setOTP] = useState(new Array(OTP_LENGTH).fill(''));
   const [activeOtpIndex, setActiveOtpIndex] = useState(0);
-  
+
   const inputRef = useRef();
 
   const { state } = useLocation();
   const user = state?.user;
-  
+
   const navigate = useNavigate();
-  
+
   const focusNextInputField = (index) => {
     setActiveOtpIndex(index + 1);
   };
@@ -53,32 +53,38 @@ function EmailVerification() {
     else focusNextInputField(currentOTPIndex);
 
     setOTP([...newOtp]);
-    
   };
-  
+
   const handleKeyDown = ({ key }, index) => {
     currentOTPIndex = index;
-    if (key === "Backspace") {
+    if (key === 'Backspace') {
       focusPrevInputField(currentOTPIndex);
     }
   };
-  
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isValidOTP(otp)) return console.log("Invalid OTP");
-    console.log(otp);
+    if (!isValidOTP(otp)) return console.log('Invalid OTP');
 
-  }
+    // submit otp
+    const { error, message } = await verifyUserEmail({
+      otp: otp.join(""),
+      userId: user.id,
+    });
+    
+    if (error) return console.log(error);
+
+    console.log(message);
+  };
 
   useEffect(() => {
     inputRef.current?.focus();
   }, [activeOtpIndex]);
-  
-  // useEffect(() => {
-  //   if (!user) navigate('/not-found');
-  // },[user])
-  
+
+  useEffect(() => {
+    if (!user) navigate("/not-found");
+  }, [user,navigate]);
 
   return (
     <FormContainer>
@@ -98,7 +104,7 @@ function EmailVerification() {
                   key={index}
                   value={otp[index]}
                   onChange={handleOtpChange}
-                  onKeyDown={(e)=>handleKeyDown(e,index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
                   type="number"
                   className="w-12 h-12 border-2 dark:border-dark-subtle border-light-subtle dark:focus:border-white focus:border-primary rounded bg-transparent outline-none text-center dark:text-white text-primary font-semibold text-xl spin-button-none"
                 />

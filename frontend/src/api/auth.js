@@ -1,6 +1,7 @@
-import client from './client';
+import { client } from "./client";
 
-const createUser = async (userInfo) => {
+
+export const createUser = async (userInfo) => {
   try {
     const { data } = await client.post('/create', userInfo);
     return data;
@@ -10,4 +11,4 @@ const createUser = async (userInfo) => {
     return { error: error.message || error };
   }
 };
-export default createUser;
+

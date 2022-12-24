@@ -17,6 +17,7 @@ function App() {
         <Route path='/auth/verification' element={<EmailVerification/>} />
         <Route path='/auth/forget-password' element={<ForgetPassword/>} />
         <Route path='/auth/confirm-password' element={<ConfirmPassword/>} />
+        <Route path='*' element={<ConfirmPassword/>} />
       </Routes>
     </>
   );

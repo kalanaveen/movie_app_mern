@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import createUser from '../../api/auth';
+import { useNavigate } from 'react-router-dom';
+import { createUser } from '../../api/auth';
 import { commonModalClasses } from '../../utils/theme';
 import Container from '../Container';
 import CustomLink from '../CustomLink';
@@ -7,6 +8,7 @@ import FormInput from '../form/FormInput';
 import Submit from '../form/Submit';
 import Title from '../form/Title';
 import FormContainer from '../FormContainer';
+
 
 const validateUserInfo = ({ name, email, password }) => {
   const isValidEmail = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -30,7 +32,8 @@ function SignUp() {
     email: '',
     password: '',
   });
-
+  
+  const navigate = useNavigate();
   const { name, email, password } = userInfo;
   
   const handleChange = ({target}) => {
@@ -38,15 +41,20 @@ function SignUp() {
     setUserInfo({ ...userInfo, [name]: value })
   }
   
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { ok, error } = validateUserInfo(userInfo);
     if (!ok) return console.log(error);
     
-    const response =  await createUser(userInfo);
+    const response = await createUser(userInfo);
     if (response.error) return console.log(response.error);
-    console.log(response.user);
-  }
+    
+    navigate('/auth/verification', {
+      state: { user: response },
+      replace: true,
+    });
+    
+  };
 
   return (
     <FormContainer>

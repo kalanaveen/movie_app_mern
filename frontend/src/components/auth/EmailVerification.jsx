@@ -11,6 +11,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 let currentOTPIndex;
 let OTP_LENGTH = 6;
 
+const isValidOTP = (otp) => {
+  let valid = false;
+
+  for (let val of otp) {
+    valid = !isNaN(parseInt(val))
+    if (!valid) break;
+  }
+
+  return valid;
+}
+
 function EmailVerification() {                                                                                                                                                                                                                                                                                                                                   
   const [otp, setOTP] = useState(new Array(OTP_LENGTH).fill(''));
   const [activeOtpIndex, setActiveOtpIndex] = useState(0);
@@ -18,8 +29,8 @@ function EmailVerification() {
   const inputRef = useRef();
 
   const { state } = useLocation();
-  const user = state.user;
-
+  const user = state?.user;
+  
   const navigate = useNavigate();
   
   const focusNextInputField = (index) => {
@@ -51,20 +62,28 @@ function EmailVerification() {
       focusPrevInputField(currentOTPIndex);
     }
   };
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!isValidOTP(otp)) return console.log("Invalid OTP");
+    console.log(otp);
+
+  }
 
   useEffect(() => {
     inputRef.current?.focus();
   }, [activeOtpIndex]);
   
-  useEffect(() => {
-    if (!user) navigate('/not-found');
-  },[user])
+  // useEffect(() => {
+  //   if (!user) navigate('/not-found');
+  // },[user])
   
 
   return (
     <FormContainer>
       <Container>
-        <form className={commonModalClasses}>
+        <form onClick={handleSubmit} className={commonModalClasses}>
           <div>
             <Title>Please Enter The OTP to verify your account</Title>
             <p className="text-center dark:text-dark-subtle text-light-subtle">
@@ -86,7 +105,7 @@ function EmailVerification() {
               );
             })}
           </div>
-          <Submit value="Send Link" />
+          <Submit value="Verify Email" />
         </form>
       </Container>
     </FormContainer>

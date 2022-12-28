@@ -11,7 +11,7 @@
 
 /* animation notification  */
 .bounce-custom {
-  animation: bounce-custom 0.5s infinite;
+  animation: bounce-custom 0.5s;
 }
 @keyframes bounce-custom {
   from, to { transform: scale(1, 1); }

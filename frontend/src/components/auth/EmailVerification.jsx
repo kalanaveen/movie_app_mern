@@ -67,7 +67,7 @@ function EmailVerification() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isValidOTP(otp)) return console.log('Invalid OTP');
+    if (!isValidOTP(otp)) return updateNotification('error','Invalid OTP');
 
     // submit otp
     const { error, message } = await verifyUserEmail({
